@@ -1,0 +1,34 @@
+# trantor-files — walking, globbing, temp files and tree copies, in pure Roc.
+#
+# An ADD-ON over the trantor-cli baseline, which it depends on: everything here
+# is Roc over trantor-cli's filesystem primitives, so it inherits their
+# confinement under `fs-confined` and adds no host code (trantor D-S2-1). A
+# consumer names both:
+#
+#   [deps]
+#   trantor-cli = { path = "../trantor-cli" }
+#   trantor-files = { path = "../trantor-files" }
+#
+# One module per feature (D-S2-20); single operations (append, copy, links)
+# are methods on trantor-cli's `Path` instead.
+[package]
+name = "trantor-files"
+version = "0.1.0"
+exports = ["Glob", "Walk", "Temp", "Tree"]
+
+[deps]
+trantor-cli = { path = "../trantor-cli" }
+
+# The matcher, pure and free of any filesystem, so it can move to trantor-text
+# later (D-S2-9). `GlobParse` and `GlobText` are its implementation.
+[components.glob]
+kind = "roc"
+exports = ["GlobPattern", "GlobParse", "GlobText"]
+
+[components.files-lib]
+kind = "roc"
+exports = ["Glob", "Walk", "Temp", "Tree", "FilesPath"]
+
+# What `trantor test .` composes this add-on against.
+[dev-deps]
+trantor-cli = { path = "../trantor-cli" }
