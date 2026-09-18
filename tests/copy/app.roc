@@ -29,11 +29,12 @@ main! = |_args| {
 	long = Path.utf8(Str.repeat("x", 240))
 	long_first = show(Tree.copy!(Path.utf8("src/a.txt"), long, {}))
 	long_again = show(Tree.copy!(Path.utf8("src/a.txt"), long, { overwrite: True }))
-	# From "" (the working directory), entry names are kept whole.
+	# From "." (the working directory), entry names are kept whole. An empty
+	# path names nothing (D-S2-58), so copying from "" is NotFound.
 	Path.create_dir!(Path.utf8("from-cwd"))?
 	Path.write_utf8!(Path.utf8("from-cwd/ab"), "x")?
 	Env.set_cwd!(Path.utf8("from-cwd"))?
-	cwd_copy = show(Tree.copy!(Path.utf8(""), Path.utf8("../cwd-copy"), {}))
+	cwd_copy = "${show(Tree.copy!(Path.utf8("."), Path.utf8("../cwd-copy"), {}))},${show(Tree.copy!(Path.utf8(""), Path.utf8("../empty-copy"), {}))}"
 	Env.set_cwd!(Path.utf8(".."))?
 	# A followed link out of the root: a directory unconfined, the link itself
 	# under fs-confined, not a failed walk (D-S2-30).

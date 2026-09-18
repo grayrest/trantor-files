@@ -38,16 +38,16 @@ fixture() {
 # ../outside/* and outlink/* expand.
 run_copy() {
 	local dir=$1 app=$2 got want
-	want="ok err:AlreadyExists ok ok err:NotFound $3 ok,ok ok $5 $6"
+	want="ok err:AlreadyExists ok ok err:NotFound $3 ok,ok ok,err:NotFound $5 $6"
 	got=$(cd "$dir" && capped 60 "$(bin "$app")") || { echo "FAIL: $app did not finish"; exit 1; }
 	[[ "$got" == "$want" ]] || {
 		echo "FAIL: $app outcomes were '$got', want '$want'"
-		echo "      (copy again-without-overwrite overwrite single-file missing overwrite-dangling long-name-overwrite copy-from-empty followed-escape glob-escapes)"; exit 1; }
+		echo "      (copy again-without-overwrite overwrite single-file missing overwrite-dangling long-name-overwrite copy-from-cwd,copy-from-empty followed-escape glob-escapes)"; exit 1; }
 	diff <(python3 snapshot.py "$dir/src") <(python3 snapshot.py "$dir/dst") \
 		|| { echo "FAIL: $app: the copy differs from its source (above)"; exit 1; }
 	[[ "$(cat "$dir/single.txt")" == a ]] || { echo "FAIL: $app: a single file copy holds '$(cat "$dir/single.txt")'"; exit 1; }
 	[[ "$(readlink "$dir/ow-dst/l")" == "$4" ]] || { echo "FAIL: $app: ow-dst/l holds '$(readlink "$dir/ow-dst/l")', want '$4'"; exit 1; }
-	[[ "$(cat "$dir/cwd-copy/ab" 2>/dev/null)" == x ]] || { echo "FAIL: $app: copying from \"\" did not keep the name ab: $(ls "$dir/cwd-copy" 2>&1)"; exit 1; }
+	[[ "$(cat "$dir/cwd-copy/ab" 2>/dev/null)" == x ]] || { echo "FAIL: $app: copying from \".\" did not keep the name ab: $(ls "$dir/cwd-copy" 2>&1)"; exit 1; }
 	[[ -z "$(find "$dir" -name '.copy-in-progress-*')" ]] || { echo "FAIL: $app: a temporary replacement was left behind"; exit 1; }
 }
 fixture "$TMP/plain"

@@ -102,8 +102,9 @@ link_round! = |links, spots, overwrite, waiting| match links {
 ## The part of `path` below `root`, which `path` is spelled under.
 relative : List(U8), List(U8) -> List(U8)
 relative = |root, path| {
-	# `""` is the working directory, whose entries are spelled bare.
-	separator = if List.is_empty(root) or List.last(root) == Ok('/') { 0 } else { 1 }
+	# A root ending in `/` already separates it from its entries. (An empty
+	# root cannot reach here: it is NotFound before the walk, D-S2-58.)
+	separator = if List.last(root) == Ok('/') { 0 } else { 1 }
 	List.drop_first(path, List.len(root) + separator)
 }
 
@@ -173,4 +174,3 @@ replace_attempt! = |to, make!, left| {
 
 expect relative(Str.to_utf8("src"), Str.to_utf8("src/a/b")) == Str.to_utf8("a/b")
 expect relative(Str.to_utf8("/"), Str.to_utf8("/etc")) == Str.to_utf8("etc")
-expect relative([], Str.to_utf8("src")) == Str.to_utf8("src")
