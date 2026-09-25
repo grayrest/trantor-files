@@ -53,17 +53,17 @@ Temp :: [].{
 	}
 
 	## A new empty directory the caller deletes.
-	create_dir! : () => Try(Path.Path, [PathErr(IOErr), RandomErr(IOErr), ..])
+	create_dir! : () => Try(Path.Path, [PathErr(IOErr), RandomErr(IOErr)])
 	create_dir! = || Temp.create_dir_in!(Env.temp_dir!())
 
-	create_dir_in! : Path.Path => Try(Path.Path, [PathErr(IOErr), RandomErr(IOErr), ..])
+	create_dir_in! : Path.Path => Try(Path.Path, [PathErr(IOErr), RandomErr(IOErr)])
 	create_dir_in! = |base| exclusive_dir!(base, attempts)
 
 	## A new empty file the caller deletes.
-	create_file! : () => Try(Path.Path, [PathErr(IOErr), RandomErr(IOErr), ..])
+	create_file! : () => Try(Path.Path, [PathErr(IOErr), RandomErr(IOErr)])
 	create_file! = || Temp.create_file_in!(Env.temp_dir!())
 
-	create_file_in! : Path.Path => Try(Path.Path, [PathErr(IOErr), RandomErr(IOErr), ..])
+	create_file_in! : Path.Path => Try(Path.Path, [PathErr(IOErr), RandomErr(IOErr)])
 	create_file_in! = |base| Ok(exclusive_file!(base, attempts)?.path)
 }
 
@@ -96,7 +96,7 @@ after_cleanup = |result, cleaned| match (result, cleaned) {
 	_ => result
 }
 
-fresh_name! : Path.Path => Try(Path.Path, [RandomErr(IOErr), ..])
+fresh_name! : Path.Path => Try(Path.Path, [RandomErr(IOErr)])
 fresh_name! = |base| {
 	seed = Random.seed_u64!()?
 	# Not `Path.join`, which concatenates: macOS sets TMPDIR with a trailing
@@ -104,7 +104,7 @@ fresh_name! = |base| {
 	Ok(FilesPath.from_bytes(FilesPath.child(FilesPath.bytes(base), Str.to_utf8("${name_prefix}${FilesPath.hex(seed, hex_digits)}"))))
 }
 
-exclusive_dir! : Path.Path, U64 => Try(Path.Path, [PathErr(IOErr), RandomErr(IOErr), ..])
+exclusive_dir! : Path.Path, U64 => Try(Path.Path, [PathErr(IOErr), RandomErr(IOErr)])
 exclusive_dir! = |base, left| {
 	path = fresh_name!(base)?
 	match FsOps.create_dir_mode!(FilesPath.bytes(path), owner_only_dir) {
@@ -114,7 +114,7 @@ exclusive_dir! = |base, left| {
 	}
 }
 
-exclusive_file! : Path.Path, U64 => Try({ path : Path.Path, writer : File.Writer }, [PathErr(IOErr), RandomErr(IOErr), ..])
+exclusive_file! : Path.Path, U64 => Try({ path : Path.Path, writer : File.Writer }, [PathErr(IOErr), RandomErr(IOErr)])
 exclusive_file! = |base, left| {
 	path = fresh_name!(base)?
 	match open_new!(path) {

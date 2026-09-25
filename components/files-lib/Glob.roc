@@ -40,7 +40,7 @@ Glob :: [].{
 	## ```roc
 	## sources = Glob.expand!("src/**/*.roc")?
 	## ```
-	expand! : Str => Try(List(Path.Path), [PathErr(IOErr), InvalidGlob(Str), ..])
+	expand! : Str => Try(List(Path.Path), [PathErr(IOErr), InvalidGlob(Str)])
 	expand! = |text| match GlobPattern.parse(text) {
 		Err(InvalidGlob(why)) => Err(InvalidGlob(why))
 		Ok(pattern) => expand_parsed!(pattern, text)
@@ -49,7 +49,7 @@ Glob :: [].{
 
 ## Each group of alternatives searches from its own start, and the results are
 ## merged: overlapping starts (`src` and `src/lib`) can find a path twice.
-expand_parsed! : GlobPattern.Pattern, Str => Try(List(Path.Path), [PathErr(IOErr), ..])
+expand_parsed! : GlobPattern.Pattern, Str => Try(List(Path.Path), [PathErr(IOErr)])
 expand_parsed! = |pattern, _text| {
 	# Spelled without `.` components, so `{*.txt,./a.txt,././a.txt}` finds
 	# `a.txt` once. Literal alternatives no search reaches (`.`, `tree/..`, `/`)
@@ -64,7 +64,7 @@ expand_parsed! = |pattern, _text| {
 	}))
 }
 
-expand_starts! : List({ prefix : Str, pattern : GlobPattern.Pattern }), List(Path.Path) => Try(List(Path.Path), [PathErr(IOErr), ..])
+expand_starts! : List({ prefix : Str, pattern : GlobPattern.Pattern }), List(Path.Path) => Try(List(Path.Path), [PathErr(IOErr)])
 expand_starts! = |starts, found| match starts {
 	[] => Ok(found)
 	[start, .. as rest] =>
@@ -80,7 +80,7 @@ expand_starts! = |starts, found| match starts {
 		}
 }
 
-expand_from! : GlobPattern.Pattern, Str => Try(List(Path.Path), [PathErr(IOErr), ..])
+expand_from! : GlobPattern.Pattern, Str => Try(List(Path.Path), [PathErr(IOErr)])
 expand_from! = |pattern, prefix| {
 	root = Path.utf8(if Str.is_empty(prefix) { "." } else { prefix })
 	# A start that is not there is no match; a directory vanishing mid-walk is an error.
@@ -103,7 +103,7 @@ expand_from! = |pattern, prefix| {
 	}
 }
 
-search! : GlobPattern.Pattern, Str, Path.Path => Try(List(Path.Path), [PathErr(IOErr), ..])
+search! : GlobPattern.Pattern, Str, Path.Path => Try(List(Path.Path), [PathErr(IOErr)])
 search! = |pattern, prefix, root|
 	# Links are followed under a wildcard, as zsh does, so `src/*/main.roc`
 	# looks inside a linked `src/vendor`; `**` may not take a link's own
@@ -192,7 +192,7 @@ without_dot_components = |path| {
 ## `/` asks for a directory. Not there, through a file, or around a loop of
 ## links is no match; any other error, a confinement refusal or an I/O error,
 ## fails the expansion (D-S2-34).
-existing! : List({ name : Str, directory_only : Bool }), List(Path.Path) => Try(List(Path.Path), [PathErr(IOErr), ..])
+existing! : List({ name : Str, directory_only : Bool }), List(Path.Path) => Try(List(Path.Path), [PathErr(IOErr)])
 existing! = |names, found| match names {
 	[] => Ok(found)
 	[literal, .. as rest] => {

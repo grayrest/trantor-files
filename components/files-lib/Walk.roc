@@ -38,7 +38,7 @@ Walk :: [].{
 	##         _ => Continue(n)
 	##     })?
 	## ```
-	walk! : Path.Path, state, { follow_symlinks ?: Bool, max_depth ?: U64, skip_unreadable_links ?: Bool }, (state, Entry => [Continue(state), SkipDir(state), Stop(state)]) => Try(state, [PathErr(IOErr), ..])
+	walk! : Path.Path, state, { follow_symlinks ?: Bool, max_depth ?: U64, skip_unreadable_links ?: Bool }, (state, Entry => [Continue(state), SkipDir(state), Stop(state)]) => Try(state, [PathErr(IOErr)])
 	walk! = |root, state, opts, visit!| {
 		config = { follow: opts.?follow_symlinks ?? False, max_depth: opts.?max_depth ?? U64.highest, skip_unreadable_links: opts.?skip_unreadable_links ?? False }
 		# `max_depth: 0` visits nothing, not the direct children.
@@ -56,7 +56,7 @@ Walk :: [].{
 	}
 
 	## Everything `walk!` would visit, in that order.
-	list! : Path.Path, { follow_symlinks ?: Bool, max_depth ?: U64, skip_unreadable_links ?: Bool } => Try(List(Entry), [PathErr(IOErr), ..])
+	list! : Path.Path, { follow_symlinks ?: Bool, max_depth ?: U64, skip_unreadable_links ?: Bool } => Try(List(Entry), [PathErr(IOErr)])
 	list! = |root, opts| Walk.walk!(root, [], opts, |acc, entry| Continue(List.append(acc, entry)))
 }
 

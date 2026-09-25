@@ -25,7 +25,7 @@ Tree :: [].{
 	## Links are made after everything else, and a link to another link after
 	## that one, so each finds its target there, which `fs-confined` requires
 	## of every link it creates.
-	copy! : Path.Path, Path.Path, { overwrite ?: Bool } => Try({}, [PathErr(IOErr), ..])
+	copy! : Path.Path, Path.Path, { overwrite ?: Bool } => Try({}, [PathErr(IOErr)])
 	copy! = |from, to, opts| {
 		overwrite = opts.?overwrite ?? False
 		match Path.type!(from)? {
@@ -37,7 +37,7 @@ Tree :: [].{
 	}
 }
 
-copy_dir! : Path.Path, Path.Path, Bool => Try({}, [PathErr(IOErr), ..])
+copy_dir! : Path.Path, Path.Path, Bool => Try({}, [PathErr(IOErr)])
 copy_dir! = |from, to, overwrite| {
 	entries = Walk.list!(from, {})?
 	make_dir!(from, to, overwrite)?
@@ -53,7 +53,7 @@ destination = |spots, entry| FilesPath.from_bytes(FilesPath.child(spots.to, rela
 
 ## Directories and files in walk order, so a parent exists before its
 ## children; the links are handed back for afterwards.
-copy_entries! : List(Walk.Entry), Spots, Bool, List(Walk.Entry) => Try(List(Walk.Entry), [PathErr(IOErr), ..])
+copy_entries! : List(Walk.Entry), Spots, Bool, List(Walk.Entry) => Try(List(Walk.Entry), [PathErr(IOErr)])
 copy_entries! = |entries, spots, overwrite, links| match entries {
 	[] => Ok(links)
 	[entry, .. as rest] =>
@@ -75,7 +75,7 @@ copy_entries! = |entries, spots, overwrite, links| match entries {
 ## or lies through one, is refused until that link exists. Each round makes
 ## what it can and retries the refusals; a round that makes nothing answers
 ## `NotFound`, which is also the answer for a target that never exists.
-copy_links! : List(Walk.Entry), Spots, Bool => Try({}, [PathErr(IOErr), ..])
+copy_links! : List(Walk.Entry), Spots, Bool => Try({}, [PathErr(IOErr)])
 copy_links! = |links, spots, overwrite| {
 	waiting = link_round!(links, spots, overwrite, [])?
 	if List.is_empty(waiting) {
@@ -88,7 +88,7 @@ copy_links! = |links, spots, overwrite| {
 }
 
 ## The links a round could not make yet because their target was missing.
-link_round! : List(Walk.Entry), Spots, Bool, List(Walk.Entry) => Try(List(Walk.Entry), [PathErr(IOErr), ..])
+link_round! : List(Walk.Entry), Spots, Bool, List(Walk.Entry) => Try(List(Walk.Entry), [PathErr(IOErr)])
 link_round! = |links, spots, overwrite, waiting| match links {
 	[] => Ok(waiting)
 	[entry, .. as rest] =>
@@ -109,14 +109,14 @@ relative = |root, path| {
 }
 
 ## A new directory with `from`'s permission bits (D-S2-39).
-make_dir! : Path.Path, Path.Path, Bool => Try({}, [PathErr(IOErr), ..])
+make_dir! : Path.Path, Path.Path, Bool => Try({}, [PathErr(IOErr)])
 make_dir! = |from, path, overwrite| match FsOps.copy_dir!(FilesPath.bytes(from), FilesPath.bytes(path)) {
 	Ok({}) => Ok({})
 	Err(DirErr(AlreadyExists)) if overwrite => if Path.is_dir!(path)? { Ok({}) } else { Err(PathErr(AlreadyExists)) }
 	Err(DirErr(err)) => Err(PathErr(err))
 }
 
-copy_file! : Path.Path, Path.Path, Bool => Try({}, [PathErr(IOErr), ..])
+copy_file! : Path.Path, Path.Path, Bool => Try({}, [PathErr(IOErr)])
 copy_file! = |from, to, overwrite|
 	if overwrite {
 		replace!(to, |fresh| Path.copy!(from, fresh))
@@ -124,7 +124,7 @@ copy_file! = |from, to, overwrite|
 		Path.copy!(from, to)
 	}
 
-copy_link! : Path.Path, Path.Path, Bool => Try({}, [PathErr(IOErr), ..])
+copy_link! : Path.Path, Path.Path, Bool => Try({}, [PathErr(IOErr)])
 copy_link! = |from, to, overwrite| {
 	target = Path.read_sym_link!(from)?
 	if overwrite {

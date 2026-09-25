@@ -42,8 +42,8 @@ Entry : {
     links : List(U64),   # the depth of every symlink on the path, this entry's included
 }
 
-Walk.walk! : Path, state, { follow_symlinks ?: Bool, max_depth ?: U64, skip_unreadable_links ?: Bool }, (state, Entry => [Continue(state), SkipDir(state), Stop(state)]) => Try(state, [PathErr(IOErr), ..])
-Walk.list! : Path, { follow_symlinks ?: Bool, max_depth ?: U64, skip_unreadable_links ?: Bool } => Try(List(Entry), [PathErr(IOErr), ..])
+Walk.walk! : Path, state, { follow_symlinks ?: Bool, max_depth ?: U64, skip_unreadable_links ?: Bool }, (state, Entry => [Continue(state), SkipDir(state), Stop(state)]) => Try(state, [PathErr(IOErr)])
+Walk.list! : Path, { follow_symlinks ?: Bool, max_depth ?: U64, skip_unreadable_links ?: Bool } => Try(List(Entry), [PathErr(IOErr)])
 ```
 
 `root` itself is not visited, and `max_depth: 0` visits nothing. With
@@ -70,7 +70,7 @@ sources = Glob.expand!("src/**/*.{roc,rs}")?
 
 ```roc
 Glob.matches : Str, Str -> Bool    # pattern, path; an invalid pattern matches nothing
-Glob.expand! : Str => Try(List(Path), [PathErr(IOErr), InvalidGlob(Str), ..])
+Glob.expand! : Str => Try(List(Path), [PathErr(IOErr), InvalidGlob(Str)])
 ```
 
 `expand!` returns paths spelled without `.` components, sorted by their bytes,
@@ -103,10 +103,10 @@ Temp.with_dir! : (Path => Try(a, [PathErr(IOErr), RandomErr(IOErr), ..e])) => Tr
 Temp.with_dir_in! : Path, (Path => Try(a, [PathErr(IOErr), RandomErr(IOErr), ..e])) => Try(a, [PathErr(IOErr), RandomErr(IOErr), ..e])
 Temp.with_file! : (Path, File.Writer => Try(a, [PathErr(IOErr), RandomErr(IOErr), ..e])) => Try(a, [PathErr(IOErr), RandomErr(IOErr), ..e])
 Temp.with_file_in! : Path, (Path, File.Writer => Try(a, [PathErr(IOErr), RandomErr(IOErr), ..e])) => Try(a, [PathErr(IOErr), RandomErr(IOErr), ..e])
-Temp.create_dir! : () => Try(Path, [PathErr(IOErr), RandomErr(IOErr), ..])
-Temp.create_dir_in! : Path => Try(Path, [PathErr(IOErr), RandomErr(IOErr), ..])
-Temp.create_file! : () => Try(Path, [PathErr(IOErr), RandomErr(IOErr), ..])
-Temp.create_file_in! : Path => Try(Path, [PathErr(IOErr), RandomErr(IOErr), ..])
+Temp.create_dir! : () => Try(Path, [PathErr(IOErr), RandomErr(IOErr)])
+Temp.create_dir_in! : Path => Try(Path, [PathErr(IOErr), RandomErr(IOErr)])
+Temp.create_file! : () => Try(Path, [PathErr(IOErr), RandomErr(IOErr)])
+Temp.create_file_in! : Path => Try(Path, [PathErr(IOErr), RandomErr(IOErr)])
 ```
 
 A callback's own errors pass through beside `PathErr` and `RandomErr`. The
@@ -128,7 +128,7 @@ Tree.copy!(Path.utf8("template"), Path.utf8("new-project"), {})?
 ```
 
 ```roc
-Tree.copy! : Path, Path, { overwrite ?: Bool } => Try({}, [PathErr(IOErr), ..])    # overwrite defaults to False
+Tree.copy! : Path, Path, { overwrite ?: Bool } => Try({}, [PathErr(IOErr)])    # overwrite defaults to False
 ```
 
 A file `from` is copied as one file. Setuid, setgid and sticky bits are
