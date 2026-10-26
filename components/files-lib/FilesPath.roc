@@ -1,6 +1,6 @@
-import OsStr exposing [OsStr]
+import OsStr
 import Path
-import IOErr exposing [IOErr]
+import IOErr
 ## Bytes to and from basic-cli's `Path`, for FsOps, which speaks bytes.
 FilesPath :: [].{
 	## A path's bytes. Windows UTF-16 paths are not representable on this host

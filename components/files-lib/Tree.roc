@@ -1,4 +1,4 @@
-import IOErr exposing [IOErr]
+import IOErr
 import Path
 import Walk
 import FilesPath
