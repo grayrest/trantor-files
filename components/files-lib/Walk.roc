@@ -46,11 +46,14 @@ Walk :: [].{
 			Ok(state)
 		} else {
 			bytes = FilesPath.bytes(root)
-			inside = if config.follow { [identity!(bytes, True).map_err(|e| PathErr(e))?] } else { [] }
-			match walk_dir!(bytes, 1, inside, [], state, config, visit!) {
-				Ok(Continue(s)) => Ok(s)
-				Ok(Stop(s)) => Ok(s)
+			match opening!(bytes, config) {
 				Err(e) => Err(PathErr(e))
+				Ok({ inside, entries }) =>
+					match walk_entries!(bytes, entries, 1, inside, [], state, config, visit!) {
+						Ok(Continue(s)) => Ok(s)
+						Ok(Stop(s)) => Ok(s)
+						Err(e) => Err(PathErr(e))
+					}
 			}
 		}
 	}
@@ -70,10 +73,14 @@ Inside : List(Identity)
 identity! : List(U8), Bool => Try(Identity, IOErr)
 identity! = |bytes, follow| Fs.metadata_hash_at!(FsOps.root!(), FsOps.resolve!(bytes), { follow_symlinks: follow }).map_err(|Io(e)| e)
 
-walk_dir! : List(U8), U64, Inside, List(U64), state, Config, (state, Walk.Entry => [Continue(state), SkipDir(state), Stop(state)]) => Try([Continue(state), Stop(state)], IOErr)
-walk_dir! = |dir, depth, inside, links, state, config, visit!| {
-	entries = FsOps.entries!(dir).map_err(|DirErr(e)| e)?
-	walk_entries!(dir, entries, depth, inside, links, state, config, visit!)
+## The root's entries, and its identity when following links. These `?`s stay
+## out of `walk!`: roc f20c86 miscompiles one there, ahead of the recursion it
+## hands `visit!` to, so one walk ran another walk's `visit!` of the same state.
+opening! : List(U8), Config => Try({ inside : Inside, entries : List(FsOps.Entry) }, IOErr)
+opening! = |bytes, config| {
+	inside = if config.follow { [identity!(bytes, True)?] } else { [] }
+	entries = FsOps.entries!(bytes).map_err(|DirErr(e)| e)?
+	Ok({ inside, entries })
 }
 
 walk_entries! : List(U8), List(FsOps.Entry), U64, Inside, List(U64), state, Config, (state, Walk.Entry => [Continue(state), SkipDir(state), Stop(state)]) => Try([Continue(state), Stop(state)], IOErr)

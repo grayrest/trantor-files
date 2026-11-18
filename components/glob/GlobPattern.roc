@@ -425,13 +425,13 @@ expect contains("a/**/.x/y", "a/b/.x")
 expect !contains("**/**/**/**/**/**/**/x", "a/b/c/d/e/f/g/h/i/j/k/l/m/n/.h")
 expect contains("**/**/**/**/**/**/**/.h/x", "a/b/c/d/e/f/g/h/i/j/k/l/m/n/.h")
 
-starts : Str -> List(Str)
-starts = |pattern| match GlobPattern.parse(pattern) {
+start_prefixes : Str -> List(Str)
+start_prefixes = |pattern| match GlobPattern.parse(pattern) {
 	Ok(p) => GlobPattern.starts(p).map(|s| s.prefix)
 	Err(_) => ["<invalid>"]
 }
 
-expect starts("{/abs/*,rel/*}") == ["/abs", "rel"]
+expect start_prefixes("{/abs/*,rel/*}") == ["/abs", "rel"]
 
 literals : Str -> List(Str)
 literals = |pattern| match GlobPattern.parse(pattern) {
@@ -450,11 +450,11 @@ unreachables = |pattern| match GlobPattern.parse(pattern) {
 }
 
 expect unreachables("{.,tree/..,tree/a.txt,*.x,/}") == [".", "tree/..", "/"]
-expect starts("{tree/a.txt,.,}") == ["tree"]
-expect starts("") == []
-expect starts("*.{rs,roc}") == [""]
-expect starts("{/etc,/usr}/*") == ["/etc", "/usr"]
-expect starts("{src,test}/a/*") == ["src/a", "test/a"]
+expect start_prefixes("{tree/a.txt,.,}") == ["tree"]
+expect start_prefixes("") == []
+expect start_prefixes("*.{rs,roc}") == [""]
+expect start_prefixes("{/etc,/usr}/*") == ["/etc", "/usr"]
+expect start_prefixes("{src,test}/a/*") == ["src/a", "test/a"]
 
 invalid : Str -> Bool
 invalid = |pattern| match GlobPattern.parse(pattern) {
